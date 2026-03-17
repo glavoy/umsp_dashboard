@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, LogOut } from 'lucide-react';
+import { BarChart3, Dna, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { href: '/dashboard/genomic-data', label: 'Genomic Data', icon: Dna },
 ];
 
 export function Sidebar() {
