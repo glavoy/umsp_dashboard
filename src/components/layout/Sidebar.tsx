@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BarChart3, Dna, LogOut } from 'lucide-react';
@@ -23,14 +24,15 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-72 shrink-0 flex-col rounded-2xl border border-border/70 bg-white p-3 shadow-sm lg:flex">
-      <Link href="/" className="mb-3 flex items-center gap-3 rounded-xl px-3 py-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <BarChart3 className="h-5 w-5" />
-        </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">IDRC</p>
-          <p className="text-sm font-semibold text-foreground">Uganda Malaria Surveillance Programme</p>
-        </div>
+      <Link href="/" className="mb-3 flex items-center rounded-xl px-3 py-3">
+        <Image
+          src="/logo/idrc_logo.png"
+          alt="IDRC logo"
+          width={120}
+          height={40}
+          className="h-10 w-auto object-contain"
+          priority
+        />
       </Link>
 
       <nav className="flex-1 space-y-1.5 px-1">
