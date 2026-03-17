@@ -3,8 +3,10 @@
 import dynamic from 'next/dynamic';
 import { useSupabaseQuery } from '@/lib/hooks/use-supabase-query';
 import { fetchMappedActiveUmspSiteNames } from '@/lib/queries/active-sites';
+import { fetchSiteDateRanges } from '@/lib/queries/monthly-data';
 import { createClient } from '@/lib/supabase/client';
 import { HealthFacilityCoordinates } from '@/types/database';
+import { matchActiveSite } from '@/lib/utils/indicators';
 
 const SiteMap = dynamic(() => import('./SiteMap'), { ssr: false, loading: () => (
   <div className="flex h-full items-center justify-center text-muted-foreground text-sm">Loading map…</div>
@@ -13,23 +15,35 @@ const SiteMap = dynamic(() => import('./SiteMap'), { ssr: false, loading: () => 
 async function fetchCoordinates(): Promise<HealthFacilityCoordinates[]> {
   const { data, error } = await createClient()
     .from('health_facility_coordinates')
-    .select('*')
-    .order('site');
+    .select('*');
   if (error) throw error;
   return data ?? [];
 }
 
 export default function MapExportPage() {
+  const { data: siteDateRanges, loading: sitesLoading } = useSupabaseQuery(() => fetchSiteDateRanges());
   const { data: coords, loading: coordsLoading } = useSupabaseQuery(() => fetchCoordinates());
   const { data: activeSiteNames, loading: activeLoading } = useSupabaseQuery(() => fetchMappedActiveUmspSiteNames());
 
-  const loading = coordsLoading || activeLoading;
+  const loading = sitesLoading || coordsLoading || activeLoading;
 
-  const activeSet = new Set(activeSiteNames ?? []);
-  const sites = (coords ?? []).map((c) => ({
-    ...c,
-    isActive: activeSet.has(c.site),
-  }));
+  // Build coord lookup keyed by health_facility_coordinates.site name
+  const coordMap = new Map((coords ?? []).map((c) => [c.site, c]));
+
+  // Use umsp_monthly_data site names (same source as site-summary) and look up coords
+  const sites = (siteDateRanges ?? [])
+    .map((s) => {
+      const coord = coordMap.get(s.site);
+      if (!coord) return null;
+      return {
+        site: s.site,
+        district: s.district,
+        latitude: coord.latitude,
+        longitude: coord.longitude,
+        isActive: matchActiveSite(s.site, activeSiteNames ?? []),
+      };
+    })
+    .filter((s): s is NonNullable<typeof s> => s !== null);
 
   const activeCount = sites.filter((s) => s.isActive).length;
   const inactiveCount = sites.length - activeCount;
