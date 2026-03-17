@@ -1,13 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Activity, Menu, LogOut } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { BarChart3, Dna, Menu, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { MobileNav } from './MobileNav';
 import { createClient } from '@/lib/supabase/client';
 
+const PAGE_META: Record<string, { label: string; icon: React.ElementType }> = {
+  '/dashboard/genomic-data': { label: 'Genomic Data', icon: Dna },
+};
+const DEFAULT_META = { label: 'Dashboard', icon: BarChart3 };
+
 export function Header() {
+  const pathname = usePathname();
+  const { label, icon: Icon } = PAGE_META[pathname] ?? DEFAULT_META;
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,11 +57,11 @@ export function Header() {
 
       <div className="flex flex-1 items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/12 text-primary">
-          <Activity className="h-5 w-5" />
+          <Icon className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Dashboard</p>
-          <h1 className="text-sm font-semibold md:text-base">Uganda Malaria Surveillance</h1>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
+          <h1 className="text-sm font-semibold md:text-base">Uganda Malaria Surveillance Programme</h1>
         </div>
       </div>
 
