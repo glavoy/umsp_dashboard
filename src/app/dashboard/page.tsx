@@ -97,7 +97,7 @@ export default function DashboardPage() {
   const [primaryMetric, setPrimaryMetric] = useState<IndicatorLabel>('Malaria Incidence per 1000');
   const [secondaryMetric, setSecondaryMetric] = useState<OptionalMetric>('None');
   const [siteScope, setSiteScope] = useState<SiteScope>('All Sites');
-  const [viewType, setViewType] = useState<ViewType>('Chart');
+  const [viewType, setViewType] = useState<ViewType>('Map');
   const [showRawData, setShowRawData] = useState(false);
 
   const { data: allSites } = useSupabaseQuery(() => fetchDistinctSites());

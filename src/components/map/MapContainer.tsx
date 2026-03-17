@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { MapContainer as LeafletMap, TileLayer, CircleMarker, Popup, Marker, Polyline, GeoJSON } from 'react-leaflet';
+import { MapContainer as LeafletMap, TileLayer, CircleMarker, Tooltip, Marker, Polyline, GeoJSON } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -153,15 +153,15 @@ export function MapContainerComponent({
   const trendMinSlope = trendData.length ? Math.min(...trendData.map((t) => t.slope)) : 0;
   const trendMaxSlope = trendData.length ? Math.max(...trendData.map((t) => t.slope)) : 0;
 
-  const renderPopup = (s: SiteAgg) => (
-    <Popup>
+  const renderTooltip = (s: SiteAgg) => (
+    <Tooltip sticky>
       <div className="text-sm">
         <p className="font-bold text-[#26A69A]">{s.site}</p>
         <p>District: {s.district}</p>
         <p>{metric}: <strong>{formatNumber(s.value, 2)}</strong></p>
         <p>Data points: {s.count}</p>
       </div>
-    </Popup>
+    </Tooltip>
   );
 
   return (
@@ -189,7 +189,7 @@ export function MapContainerComponent({
               radius={radius}
               pathOptions={{ fillColor: color, color: '#333', weight: 1, fillOpacity: 0.8 }}
             >
-              {renderPopup(s)}
+              {renderTooltip(s)}
             </CircleMarker>
           );
         })}
@@ -208,7 +208,7 @@ export function MapContainerComponent({
                 fillOpacity: 0.4 + intensity * 0.4,
               }}
             >
-              {renderPopup(s)}
+              {renderTooltip(s)}
             </CircleMarker>
           );
         })}
@@ -218,10 +218,10 @@ export function MapContainerComponent({
           <MarkerClusterGroup>
             {siteAggregated.map((s) => (
               <Marker key={s.site} position={[s.latitude, s.longitude]}>
-                <Popup>
+                <Tooltip sticky>
                   <p className="font-bold">{s.site}</p>
                   <p>{metric}: {formatNumber(s.value, 2)}</p>
-                </Popup>
+                </Tooltip>
               </Marker>
             ))}
           </MarkerClusterGroup>
@@ -250,11 +250,11 @@ export function MapContainerComponent({
                 fillOpacity: 0.7,
               }}
             >
-              <Popup>
+              <Tooltip sticky>
                 <p className="font-bold text-[#26A69A]">{r.region}</p>
                 <p>Average {metric}: {formatNumber(r.value, 2)}</p>
                 <p>Sites: {r.count}</p>
-              </Popup>
+              </Tooltip>
             </CircleMarker>
           ));
         })()}
@@ -269,11 +269,11 @@ export function MapContainerComponent({
               radius={8}
               pathOptions={{ fillColor: color, color: '#333', weight: 1, fillOpacity: 0.8 }}
             >
-              <Popup>
+              <Tooltip sticky>
                 <p className="font-bold text-[#26A69A]">{t.site}</p>
                 <p>Trend: {t.arrow} {t.direction}</p>
                 <p>Slope: {t.slope.toFixed(3)}</p>
-              </Popup>
+              </Tooltip>
             </CircleMarker>
           );
         })}
@@ -293,7 +293,7 @@ export function MapContainerComponent({
                     radius={Math.sqrt(strength)}
                     pathOptions={{ fillColor: '#26A69A', color: '#333', weight: 1, fillOpacity: 0.8 }}
                   >
-                    {renderPopup(s)}
+                    {renderTooltip(s)}
                   </CircleMarker>
                 );
               })}
