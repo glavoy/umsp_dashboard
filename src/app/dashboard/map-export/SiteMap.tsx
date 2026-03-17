@@ -16,39 +16,53 @@ L.Icon.Default.mergeOptions({
 
 export default function SiteMap({ sites }: { sites: UmspSite[] }) {
   return (
-    <MapContainer
-      center={[1.5, 32.5]}
-      zoom={7}
-      style={{ height: '100%', width: '100%' }}
-      zoomControl={false}
-    >
-      <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-      />
-      {sites.map((s) => {
-        const isActive = isActiveSite(s);
-        return (
-          <CircleMarker
-            key={s.site_id}
-            center={[s.latitude, s.longitude]}
-            radius={7}
-            pathOptions={{
-              fillColor: isActive ? '#0d9488' : '#94a3b8',
-              color: isActive ? '#0f766e' : '#64748b',
-              weight: 1.5,
-              fillOpacity: isActive ? 0.85 : 0.5,
-            }}
-          >
-            <Tooltip sticky>
-              <div className="text-sm">
-                <p className="font-semibold">{s.site}</p>
-                <p className="text-muted-foreground">{s.district}</p>
-              </div>
-            </Tooltip>
-          </CircleMarker>
-        );
-      })}
-    </MapContainer>
+    <div className="relative h-full w-full">
+      <MapContainer
+        center={[1.5, 32.5]}
+        zoom={7}
+        style={{ height: '100%', width: '100%' }}
+        zoomControl={false}
+      >
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+        />
+        {sites.map((s) => {
+          const isActive = isActiveSite(s);
+          return (
+            <CircleMarker
+              key={s.site_id}
+              center={[s.latitude, s.longitude]}
+              radius={7}
+              pathOptions={{
+                fillColor: isActive ? '#0d9488' : '#94a3b8',
+                color: isActive ? '#0f766e' : '#64748b',
+                weight: 1.5,
+                fillOpacity: isActive ? 0.85 : 0.5,
+              }}
+            >
+              <Tooltip sticky>
+                <div className="text-sm">
+                  <p className="font-semibold">{s.site}</p>
+                  <p className="text-muted-foreground">{s.district}</p>
+                </div>
+              </Tooltip>
+            </CircleMarker>
+          );
+        })}
+      </MapContainer>
+
+      {/* Legend overlay */}
+      <div className="absolute left-4 top-4 z-[1000] flex flex-col gap-3 rounded-xl border border-white/60 bg-white/90 px-5 py-4 shadow-lg backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <span className="inline-block h-5 w-5 rounded-full bg-[#0d9488]" />
+          <span className="text-base font-medium text-slate-700">Active MRC</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="inline-block h-5 w-5 rounded-full bg-[#94a3b8]" />
+          <span className="text-base font-medium text-slate-700">Inactive MRC</span>
+        </div>
+      </div>
+    </div>
   );
 }

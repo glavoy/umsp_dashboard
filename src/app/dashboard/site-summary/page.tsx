@@ -5,29 +5,19 @@ import { fetchUmspSites, isActiveSite } from '@/lib/queries/umsp-sites';
 import { formatDate } from '@/lib/utils/format';
 
 export default function SiteSummaryPage() {
-  const { data: sites, loading, error } = useSupabaseQuery(() => fetchUmspSites());
+  const { data: sites, loading } = useSupabaseQuery(() => fetchUmspSites());
 
   const activeCount = (sites ?? []).filter(isActiveSite).length;
   const inactiveCount = (sites ?? []).filter((s) => !isActiveSite(s)).length;
 
   return (
     <div className="space-y-4">
-      {!loading && sites && sites.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          First row status raw value: <code className="rounded bg-muted px-1">"{sites[0].status}"</code>
-        </p>
-      )}
-
       {!loading && sites && (
         <div className="flex gap-6 text-sm text-muted-foreground">
           <span><strong className="text-foreground">{activeCount}</strong> active</span>
           <span><strong className="text-foreground">{inactiveCount}</strong> inactive</span>
           <span><strong className="text-foreground">{sites.length}</strong> total</span>
         </div>
-      )}
-
-      {error && (
-        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">Error: {error}</p>
       )}
 
       {loading ? (
