@@ -100,6 +100,34 @@ export async function fetchDistinctQuarters(): Promise<string[]> {
   return Array.from(new Set(data.map((d) => d.quarter).filter(Boolean)));
 }
 
+export interface SiteDateRange {
+  site: string;
+  region: string;
+  district: string;
+  firstDate: string;
+  lastDate: string;
+}
+
+export async function fetchSiteDateRanges(): Promise<SiteDateRange[]> {
+  const rows = await fetchAllRows<Pick<UmspMonthlyData, 'site' | 'region' | 'district' | 'monthyear'>>((client) =>
+    client.from('umsp_monthly_data')
+      .select('site, region, district, monthyear')
+      .order('monthyear', { ascending: true })
+  );
+
+  const map = new Map<string, SiteDateRange>();
+  for (const row of rows) {
+    const existing = map.get(row.site);
+    if (!existing) {
+      map.set(row.site, { site: row.site, region: row.region, district: row.district, firstDate: row.monthyear, lastDate: row.monthyear });
+    } else {
+      if (row.monthyear > existing.lastDate) existing.lastDate = row.monthyear;
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) => a.site.localeCompare(b.site));
+}
+
 export async function fetchDistinctMonthyears(): Promise<string[]> {
   const data = await fetchAllRows<Pick<UmspMonthlyData, 'monthyear'>>((client) =>
     client.from('umsp_monthly_data')
