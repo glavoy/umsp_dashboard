@@ -2,10 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { useSupabaseQuery } from '@/lib/hooks/use-supabase-query';
-import { fetchActiveSiteNames } from '@/lib/queries/active-sites';
+import { fetchMappedActiveUmspSiteNames } from '@/lib/queries/active-sites';
 import { createClient } from '@/lib/supabase/client';
 import { HealthFacilityCoordinates } from '@/types/database';
-import { matchActiveSite } from '@/lib/utils/indicators';
 
 const SiteMap = dynamic(() => import('./SiteMap'), { ssr: false, loading: () => (
   <div className="flex h-full items-center justify-center text-muted-foreground text-sm">Loading map…</div>
@@ -22,13 +21,14 @@ async function fetchCoordinates(): Promise<HealthFacilityCoordinates[]> {
 
 export default function MapExportPage() {
   const { data: coords, loading: coordsLoading } = useSupabaseQuery(() => fetchCoordinates());
-  const { data: activeSiteNames, loading: activeLoading } = useSupabaseQuery(() => fetchActiveSiteNames());
+  const { data: activeSiteNames, loading: activeLoading } = useSupabaseQuery(() => fetchMappedActiveUmspSiteNames());
 
   const loading = coordsLoading || activeLoading;
 
+  const activeSet = new Set(activeSiteNames ?? []);
   const sites = (coords ?? []).map((c) => ({
     ...c,
-    isActive: matchActiveSite(c.site, activeSiteNames ?? []),
+    isActive: activeSet.has(c.site),
   }));
 
   const activeCount = sites.filter((s) => s.isActive).length;
