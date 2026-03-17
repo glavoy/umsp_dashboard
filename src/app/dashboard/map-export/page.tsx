@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useSupabaseQuery } from '@/lib/hooks/use-supabase-query';
-import { fetchMappedActiveUmspSiteNames } from '@/lib/queries/active-sites';
+import { fetchActiveSiteNames } from '@/lib/queries/active-sites';
 import { createClient } from '@/lib/supabase/client';
 import { HealthFacilityCoordinates } from '@/types/database';
 import { matchActiveSite } from '@/lib/utils/indicators';
@@ -22,7 +22,7 @@ async function fetchCoordinates(): Promise<HealthFacilityCoordinates[]> {
 
 export default function MapExportPage() {
   const { data: coords, loading: coordsLoading } = useSupabaseQuery(() => fetchCoordinates());
-  const { data: activeSiteNames, loading: activeLoading } = useSupabaseQuery(() => fetchMappedActiveUmspSiteNames());
+  const { data: activeSiteNames, loading: activeLoading } = useSupabaseQuery(() => fetchActiveSiteNames());
 
   const loading = coordsLoading || activeLoading;
 
