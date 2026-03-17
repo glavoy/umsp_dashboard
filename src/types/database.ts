@@ -27,6 +27,18 @@ export interface HealthFacilityCoordinates {
   created_at: string;
 }
 
+export interface UmspSite {
+  site_id: number;
+  site: string;
+  district: string;
+  region: string;
+  status: 'Active' | 'Non Active';
+  date_from: string;
+  date_to: string | null;
+  latitude: number;
+  longitude: number;
+}
+
 export interface ActiveSite {
   id: number;
   site: string;

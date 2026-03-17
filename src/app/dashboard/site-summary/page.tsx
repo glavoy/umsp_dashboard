@@ -1,27 +1,22 @@
 'use client';
 
 import { useSupabaseQuery } from '@/lib/hooks/use-supabase-query';
-import { fetchSiteDateRanges } from '@/lib/queries/monthly-data';
-import { fetchMappedActiveUmspSiteNames } from '@/lib/queries/active-sites';
-import { matchActiveSite } from '@/lib/utils/indicators';
+import { fetchUmspSites } from '@/lib/queries/umsp-sites';
 import { formatDate } from '@/lib/utils/format';
 
 export default function SiteSummaryPage() {
-  const { data: sites, loading: sitesLoading } = useSupabaseQuery(() => fetchSiteDateRanges());
-  const { data: activeSiteNames, loading: activeLoading } = useSupabaseQuery(() => fetchMappedActiveUmspSiteNames());
+  const { data: sites, loading } = useSupabaseQuery(() => fetchUmspSites());
 
-  const loading = sitesLoading || activeLoading;
-  const active = (sites ?? []).filter((s) => matchActiveSite(s.site, activeSiteNames ?? []));
-  const inactive = (sites ?? []).filter((s) => !matchActiveSite(s.site, activeSiteNames ?? []));
+  const activeCount = (sites ?? []).filter((s) => s.status === 'Active').length;
+  const inactiveCount = (sites ?? []).filter((s) => s.status === 'Non Active').length;
 
   return (
-    <div className="space-y-6">
-      {/* Summary counts */}
+    <div className="space-y-4">
       {!loading && sites && (
         <div className="flex gap-6 text-sm text-muted-foreground">
-          <span><strong className="text-foreground">{active.length}</strong> active</span>
-          <span><strong className="text-foreground">{inactive.length}</strong> inactive</span>
-          <span><strong className="text-foreground">{(sites ?? []).length}</strong> total</span>
+          <span><strong className="text-foreground">{activeCount}</strong> active</span>
+          <span><strong className="text-foreground">{inactiveCount}</strong> inactive</span>
+          <span><strong className="text-foreground">{sites.length}</strong> total</span>
         </div>
       )}
 
@@ -41,31 +36,28 @@ export default function SiteSummaryPage() {
               </tr>
             </thead>
             <tbody>
-              {(sites ?? []).map((s) => {
-                const isActive = matchActiveSite(s.site, activeSiteNames ?? []);
-                return (
-                  <tr key={s.site} className="border-b border-border/50 last:border-0 hover:bg-muted/20">
-                    <td className="px-4 py-2.5 font-medium">{s.site}</td>
-                    <td className="px-4 py-2.5 text-muted-foreground">{s.district}</td>
-                    <td className="px-4 py-2.5 text-muted-foreground">{s.region}</td>
-                    <td className="px-4 py-2.5">
-                      {isActive ? (
-                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-500/20">
-                          Inactive
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2.5 text-muted-foreground">{formatDate(s.firstDate)}</td>
-                    <td className="px-4 py-2.5 text-muted-foreground">
-                      {isActive ? '—' : formatDate(s.lastDate)}
-                    </td>
-                  </tr>
-                );
-              })}
+              {(sites ?? []).map((s) => (
+                <tr key={s.site_id} className="border-b border-border/50 last:border-0 hover:bg-muted/20">
+                  <td className="px-4 py-2.5 font-medium">{s.site}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{s.district}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{s.region}</td>
+                  <td className="px-4 py-2.5">
+                    {s.status === 'Active' ? (
+                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-500/20">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{formatDate(s.date_from)}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">
+                    {s.date_to ? formatDate(s.date_to) : '—'}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
