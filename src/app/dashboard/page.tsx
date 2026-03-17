@@ -90,7 +90,7 @@ function metricSeriesForSite(
 
 export default function DashboardPage() {
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
-  const [timeScale, setTimeScale] = useState<TimeScale>('Monthly');
+  const [timeScale, setTimeScale] = useState<TimeScale>('Quarterly');
   const [monthRange, setMonthRange] = useState<[string, string]>(['2018-01-01', '2025-12-31']);
   const [quarterRange, setQuarterRange] = useState<[string, string]>(['', '']);
   const [yearRange, setYearRange] = useState<[number, number]>([2018, 2025]);
@@ -154,6 +154,9 @@ export default function DashboardPage() {
 
   const queryDeps = [effectiveSites, timeScale, normalizedMonthRange, quarterSelection, normalizedYearRange] as const;
 
+  const needsTableData = viewType !== 'Map' || showRawData;
+  const needsMapData = viewType === 'Map';
+
   const { data: tableRows, loading: tableLoading } = useSupabaseQuery(
     () =>
       fetchTimeSeriesData({
@@ -164,7 +167,8 @@ export default function DashboardPage() {
         quarters: timeScale === 'Quarterly' ? quarterSelection : undefined,
         yearRange: timeScale === 'Annual' ? normalizedYearRange : undefined,
       }),
-    [...queryDeps]
+    [...queryDeps],
+    { enabled: needsTableData }
   );
 
   const { data: mapRows, loading: mapLoading } = useSupabaseQuery(
@@ -176,7 +180,8 @@ export default function DashboardPage() {
         quarters: timeScale === 'Quarterly' ? quarterSelection : undefined,
         yearRange: timeScale === 'Annual' ? normalizedYearRange : undefined,
       }),
-    [...queryDeps]
+    [...queryDeps],
+    { enabled: needsMapData }
   );
 
   const periodKeys = useMemo(() => {

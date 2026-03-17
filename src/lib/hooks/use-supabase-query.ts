@@ -11,10 +11,12 @@ interface QueryState<T> {
 
 export function useSupabaseQuery<T>(
   queryFn: () => Promise<T>,
-  deps: unknown[] = []
+  deps: unknown[] = [],
+  options: { enabled?: boolean } = {}
 ): QueryState<T> {
+  const enabled = options.enabled ?? true;
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
@@ -32,8 +34,8 @@ export function useSupabaseQuery<T>(
   }, deps);
 
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    if (enabled) fetch();
+  }, [fetch, enabled]);
 
   return { data, loading, error, refetch: fetch };
 }
