@@ -27,7 +27,7 @@ export default function SiteMap({ sites }: { sites: Site[] }) {
       center={[1.5, 32.5]}
       zoom={7}
       style={{ height: '100%', width: '100%' }}
-      zoomControl={true}
+      zoomControl={false}
     >
       <TileLayer
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
