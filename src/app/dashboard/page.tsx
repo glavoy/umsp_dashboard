@@ -16,9 +16,7 @@ import {
   fetchDistinctMonthyears,
   fetchDistinctQuarters,
   fetchYearRange,
-  fetchSiteDateRanges,
 } from '@/lib/queries/monthly-data';
-import { SiteSummaryCard } from '@/components/dashboard/SiteSummaryCard';
 import { fetchMappedActiveUmspSiteNames } from '@/lib/queries/active-sites';
 import { fetchTimeSeriesData } from '@/lib/queries/time-series';
 import { fetchMapData } from '@/lib/queries/map-data';
@@ -104,7 +102,6 @@ export default function DashboardPage() {
 
   const { data: allSites } = useSupabaseQuery(() => fetchDistinctSites());
   const { data: activeSites } = useSupabaseQuery(() => fetchMappedActiveUmspSiteNames());
-  const { data: siteDateRanges, loading: siteDateRangesLoading } = useSupabaseQuery(() => fetchSiteDateRanges());
   const { data: monthyears } = useSupabaseQuery(() => fetchDistinctMonthyears());
   const { data: quarters } = useSupabaseQuery(() => fetchDistinctQuarters());
   const { data: years } = useSupabaseQuery(() => fetchYearRange());
@@ -353,12 +350,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <SiteSummaryCard
-        sites={siteDateRanges ?? []}
-        activeSiteNames={activeSites ?? []}
-        loading={siteDateRangesLoading}
-      />
-
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Workspace Filters</CardTitle>
