@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useSupabaseQuery } from '@/lib/hooks/use-supabase-query';
-import { fetchUmspSites } from '@/lib/queries/umsp-sites';
+import { fetchUmspSites, isActiveSite } from '@/lib/queries/umsp-sites';
 
 const SiteMap = dynamic(() => import('./SiteMap'), {
   ssr: false,
@@ -14,8 +14,8 @@ const SiteMap = dynamic(() => import('./SiteMap'), {
 export default function MapExportPage() {
   const { data: sites, loading } = useSupabaseQuery(() => fetchUmspSites());
 
-  const activeCount = (sites ?? []).filter((s) => s.status === 'Active').length;
-  const inactiveCount = (sites ?? []).filter((s) => s.status === 'Non Active').length;
+  const activeCount = (sites ?? []).filter(isActiveSite).length;
+  const inactiveCount = (sites ?? []).filter((s) => !isActiveSite(s)).length;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col gap-3">

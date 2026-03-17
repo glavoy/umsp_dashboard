@@ -1,14 +1,14 @@
 'use client';
 
 import { useSupabaseQuery } from '@/lib/hooks/use-supabase-query';
-import { fetchUmspSites } from '@/lib/queries/umsp-sites';
+import { fetchUmspSites, isActiveSite } from '@/lib/queries/umsp-sites';
 import { formatDate } from '@/lib/utils/format';
 
 export default function SiteSummaryPage() {
   const { data: sites, loading } = useSupabaseQuery(() => fetchUmspSites());
 
-  const activeCount = (sites ?? []).filter((s) => s.status === 'Active').length;
-  const inactiveCount = (sites ?? []).filter((s) => s.status === 'Non Active').length;
+  const activeCount = (sites ?? []).filter(isActiveSite).length;
+  const inactiveCount = (sites ?? []).filter((s) => !isActiveSite(s)).length;
 
   return (
     <div className="space-y-4">
@@ -42,7 +42,7 @@ export default function SiteSummaryPage() {
                   <td className="px-4 py-2.5 text-muted-foreground">{s.district}</td>
                   <td className="px-4 py-2.5 text-muted-foreground">{s.region}</td>
                   <td className="px-4 py-2.5">
-                    {s.status === 'Active' ? (
+                    {isActiveSite(s) ? (
                       <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20">
                         Active
                       </span>

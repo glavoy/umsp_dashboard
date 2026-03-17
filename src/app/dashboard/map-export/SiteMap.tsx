@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { UmspSite } from '@/types/database';
+import { isActiveSite } from '@/lib/queries/umsp-sites';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -26,7 +27,7 @@ export default function SiteMap({ sites }: { sites: UmspSite[] }) {
         attribution='&copy; <a href="https://carto.com/">CARTO</a>'
       />
       {sites.map((s) => {
-        const isActive = s.status === 'Active';
+        const isActive = isActiveSite(s);
         return (
           <CircleMarker
             key={s.site_id}

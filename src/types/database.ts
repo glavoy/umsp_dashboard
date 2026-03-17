@@ -32,7 +32,7 @@ export interface UmspSite {
   site: string;
   district: string;
   region: string;
-  status: 'Active' | 'Non Active';
+  status: string;
   date_from: string;
   date_to: string | null;
   latitude: number;
