@@ -159,7 +159,7 @@ export default function LoginPage() {
             <div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Secure authenticated access</div>
             <div className="flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Temporal and indicator analytics</div>
             <div className="flex items-center gap-2"><Map className="h-4 w-4" /> Interactive site-level mapping</div>
-            <div className="flex items-center gap-2"><Dna className="h-4 w-4" /> Genomic data <span className="text-white/60">(coming soon)</span></div>
+            <div className="flex items-center gap-2"><Dna className="h-4 w-4" /> Genomic data</div>
           </div>
         </section>
 
