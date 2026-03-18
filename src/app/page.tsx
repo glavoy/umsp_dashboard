@@ -60,9 +60,10 @@ export default function LandingPage() {
             <Image
               src="/logo/screenshot.png"
               alt="UMSP dashboard screenshot"
-              width={800}
-              height={500}
-              className="w-full rounded-2xl border border-white/15 shadow-2xl shadow-black/40"
+              width={0}
+              height={0}
+              sizes="100vw"
+              className="h-auto w-full rounded-2xl border border-white/15 shadow-2xl shadow-black/40"
             />
             <p className="text-sm leading-relaxed text-white/75">
               The Uganda Malaria Surveillance Program (UMSP) was established in 2006 to collect

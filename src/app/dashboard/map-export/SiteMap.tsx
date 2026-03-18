@@ -1,6 +1,7 @@
 'use client';
 
-import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Tooltip, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { UmspSite } from '@/types/database';
@@ -14,7 +15,27 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+const UGANDA_BORDER_URL = '/uganda-border.geojson';
+
+const ugandaBorderStyle = {
+  color: '#1e3a5f',
+  weight: 1,
+  opacity: 0.9,
+  fillColor: 'transparent',
+  fillOpacity: 0,
+};
+
 export default function SiteMap({ sites }: { sites: UmspSite[] }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [ugandaGeoJson, setUgandaGeoJson] = useState<any>(null);
+
+  useEffect(() => {
+    fetch(UGANDA_BORDER_URL)
+      .then((res) => res.json())
+      .then(setUgandaGeoJson)
+      .catch(() => {/* border overlay is cosmetic; silently skip on fetch failure */});
+  }, []);
+
   return (
     <div className="relative h-full w-full">
       <MapContainer
@@ -27,6 +48,15 @@ export default function SiteMap({ sites }: { sites: UmspSite[] }) {
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
         />
+
+        {ugandaGeoJson && (
+          <GeoJSON
+            key="uganda-border"
+            data={ugandaGeoJson}
+            style={ugandaBorderStyle}
+          />
+        )}
+
         {sites.map((s) => {
           const isActive = isActiveSite(s);
           return (
