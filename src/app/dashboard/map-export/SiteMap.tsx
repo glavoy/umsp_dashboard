@@ -90,7 +90,7 @@ export default function SiteMap({ sites }: { sites: UmspSite[] }) {
         </div>
         <div className="flex items-center gap-3">
           <span className="inline-block h-5 w-5 rounded-full bg-[#94a3b8]" />
-          <span className="text-base font-medium text-slate-700">Inactive MRC</span>
+          <span className="text-base font-medium text-slate-700">Prior MRC</span>
         </div>
       </div>
     </div>

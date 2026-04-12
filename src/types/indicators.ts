@@ -14,6 +14,21 @@ export type IndicatorColumn = (typeof INDICATOR_DB_COLUMNS)[IndicatorLabel];
 
 export const INDICATOR_LABELS = Object.keys(INDICATOR_DB_COLUMNS) as IndicatorLabel[];
 
+export const LEVEL_INDICATOR_GROUPS = {
+  'Facility Level': [
+    'TPR',
+    'Number of Visits',
+    'Suspected Malaria Cases',
+    'Proportion Suspected Malaria',
+    'Proportion Tested',
+  ] as IndicatorLabel[],
+  'Target Area Level': [
+    'Malaria Incidence per 1000',
+    'TPR (CA)',
+    'Proportion Visits from Target Area',
+  ] as IndicatorLabel[],
+};
+
 export const INDICATOR_GROUPS = {
   'Malaria Burden': [
     'Malaria Incidence per 1000',
@@ -30,6 +45,10 @@ export const INDICATOR_GROUPS = {
     'Proportion Tested',
     'Proportion Visits from Target Area',
   ] as IndicatorLabel[],
+};
+
+export const INDICATOR_DISPLAY_NAMES: Partial<Record<IndicatorLabel, string>> = {
+  'TPR (CA)': 'TPR',
 };
 
 export type TimeScale = 'Monthly' | 'Quarterly' | 'Annual';

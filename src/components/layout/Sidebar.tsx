@@ -3,14 +3,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Building2, Dna, LogOut } from 'lucide-react';
+import { BarChart3, BookOpen, Building2, Dna, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 
 const navItems = [
+  { href: '/dashboard/methods', label: 'Malaria Indicators', icon: BookOpen },
   { href: '/dashboard/site-summary', label: 'Site Summary', icon: Building2 },
-  { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
-  { href: '/dashboard/genomic-data', label: 'Genomic Data', icon: Dna },
+  { href: '/dashboard', label: 'Epi Dashboard', icon: BarChart3 },
+  { href: '/dashboard/genomic-data', label: 'Genomic Dashboard', icon: Dna },
 ];
 
 export function Sidebar() {

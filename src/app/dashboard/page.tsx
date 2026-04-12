@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { Download, Table as TableIcon } from 'lucide-react';
 import { MultiSelect } from '@/components/shared/MultiSelect';
 import { DataTable } from '@/components/data-explorer/DataTable';
@@ -23,7 +24,7 @@ import { fetchMapData } from '@/lib/queries/map-data';
 import { downloadCsv } from '@/lib/utils/csv-export';
 import { formatDate } from '@/lib/utils/format';
 import { matchActiveSite } from '@/lib/utils/indicators';
-import { INDICATOR_DB_COLUMNS, INDICATOR_GROUPS, IndicatorLabel } from '@/types/indicators';
+import { INDICATOR_DB_COLUMNS, INDICATOR_DISPLAY_NAMES, LEVEL_INDICATOR_GROUPS, IndicatorLabel } from '@/types/indicators';
 import { getColorsForGroups } from '@/lib/utils/color-palette';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
@@ -44,9 +45,6 @@ function quarterSortKey(quarter: string): number {
   return Number(yMatch[0]) * 10 + Number(qMatch[1]);
 }
 
-function getIndicatorsFlat(): IndicatorLabel[] {
-  return Array.from(new Set(Object.values(INDICATOR_GROUPS).flat()));
-}
 
 function getPeriodLabel(key: string, timeScale: TimeScale): string {
   if (timeScale === 'Annual') return key;
@@ -90,11 +88,11 @@ function metricSeriesForSite(
 
 export default function DashboardPage() {
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
-  const [timeScale, setTimeScale] = useState<TimeScale>('Quarterly');
+  const [timeScale, setTimeScale] = useState<TimeScale>('Annual');
   const [monthRange, setMonthRange] = useState<[string, string]>(['2018-01-01', '2025-12-31']);
   const [quarterRange, setQuarterRange] = useState<[string, string]>(['', '']);
-  const [yearRange, setYearRange] = useState<[number, number]>([2018, 2025]);
-  const [primaryMetric, setPrimaryMetric] = useState<IndicatorLabel>('Malaria Incidence per 1000');
+  const [yearRange, setYearRange] = useState<[number, number]>([2025, 2025]);
+  const [primaryMetric, setPrimaryMetric] = useState<IndicatorLabel>('TPR');
   const [secondaryMetric, setSecondaryMetric] = useState<OptionalMetric>('None');
   const [siteScope, setSiteScope] = useState<SiteScope>('All Sites');
   const [viewType, setViewType] = useState<ViewType>('Map');
@@ -129,6 +127,7 @@ export default function DashboardPage() {
     if (siteScope === 'All Sites') return all;
     return all.filter((site) => matchActiveSite(site, activeSites ?? []));
   }, [allSites, activeSites, siteScope]);
+
   const effectiveSites = useMemo(
     () => (selectedSites.length ? selectedSites : (siteScope === 'Active Sites' ? availableSites : undefined)),
     [selectedSites, siteScope, availableSites]
@@ -146,7 +145,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!years) return;
-    setYearRange([years.min, years.max]);
+    setYearRange([years.max, years.max]);
   }, [years]);
   useEffect(() => {
     setSelectedSites((prev) => prev.filter((site) => availableSites.includes(site)));
@@ -350,13 +349,34 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <div className="rounded-xl border border-border/70 bg-white px-5 py-4 text-sm leading-relaxed text-muted-foreground">
+        <p className="font-semibold text-foreground">How to use this dashboard:</p>
+        <p>Use the filters below to select sites, time period, and metric. For a full list of MRCs and their status, visit the <Link href="/dashboard/site-summary" className="font-medium text-foreground underline underline-offset-4 hover:text-foreground/70">Site Summary</Link> page.</p>
+        <p><span className="font-medium text-foreground">Chart</span> view plots your metric over time for selected sites. Use the Primary and Secondary metrics to compare two indicators simultaneously.</p>
+        <p><span className="font-medium text-foreground">Map</span> view shows each site&apos;s value spatially — when a time range is selected, values are averaged across all months in that range.</p>
+        <p><span className="font-medium text-foreground">Table</span> view shows the underlying monthly records.</p>
+        <p className="mt-2">For a description of each indicator and the difference between facility-level and target area data, see the <Link href="/dashboard/methods" className="font-medium text-foreground underline underline-offset-4 hover:text-foreground/70">Malaria Indicators</Link> page.</p>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Workspace Filters</CardTitle>
+          <CardTitle className="text-lg">Data Filters</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Row 1: View Type | Sites */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div>
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">View Type</Label>
+              <Select value={viewType} onValueChange={(value) => setViewType(value as ViewType)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Chart">Chart</SelectItem>
+                  <SelectItem value="Map">Map</SelectItem>
+                  <SelectItem value="Table">Tabular Data</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="lg:col-span-2">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Site(s)</Label>
               <div className="mb-2 flex gap-4 text-sm">
                 <label className="inline-flex items-center gap-2">
@@ -386,6 +406,10 @@ export default function DashboardPage() {
                 maxItems={25}
               />
             </div>
+          </div>
+
+          {/* Row 2: Time Scale | Start | End */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div>
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Time Scale</Label>
               <Select value={timeScale} onValueChange={(value) => setTimeScale(value as TimeScale)}>
@@ -397,32 +421,21 @@ export default function DashboardPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">View Type</Label>
-              <Select value={viewType} onValueChange={(value) => setViewType(value as ViewType)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Chart">Chart</SelectItem>
-                  <SelectItem value="Map">Map</SelectItem>
-                  <SelectItem value="Table">Tabular Data</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {renderTimeScaleRange()}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">{renderTimeScaleRange()}</div>
-
+          {/* Row 3: Primary Metric | Secondary Metric | Buttons */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div>
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Primary Metric</Label>
               <Select value={primaryMetric} onValueChange={(value) => setPrimaryMetric(value as IndicatorLabel)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {Object.entries(INDICATOR_GROUPS).map(([group, indicators]) => (
+                  {Object.entries(LEVEL_INDICATOR_GROUPS).map(([group, indicators]) => (
                     <SelectGroup key={group}>
                       <SelectLabel>{group}</SelectLabel>
                       {indicators.map((indicator) => (
-                        <SelectItem key={`${group}-${indicator}`} value={indicator}>{indicator}</SelectItem>
+                        <SelectItem key={`primary-${indicator}`} value={indicator}>{INDICATOR_DISPLAY_NAMES[indicator] ?? indicator}</SelectItem>
                       ))}
                     </SelectGroup>
                   ))}
@@ -432,12 +445,21 @@ export default function DashboardPage() {
 
             <div>
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Secondary Metric (Chart)</Label>
-              <Select value={secondaryMetric} onValueChange={(value) => setSecondaryMetric(value as OptionalMetric)}>
+              <Select
+                value={secondaryMetric}
+                onValueChange={(value) => setSecondaryMetric(value as OptionalMetric)}
+                disabled={viewType === 'Map'}
+              >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="None">None</SelectItem>
-                  {getIndicatorsFlat().map((indicator) => (
-                    <SelectItem key={`second-${indicator}`} value={indicator}>{indicator}</SelectItem>
+                  {Object.entries(LEVEL_INDICATOR_GROUPS).map(([group, indicators]) => (
+                    <SelectGroup key={group}>
+                      <SelectLabel>{group}</SelectLabel>
+                      {indicators.map((indicator) => (
+                        <SelectItem key={`secondary-${indicator}`} value={indicator}>{INDICATOR_DISPLAY_NAMES[indicator] ?? indicator}</SelectItem>
+                      ))}
+                    </SelectGroup>
                   ))}
                 </SelectContent>
               </Select>

@@ -15,7 +15,7 @@ export default function SiteSummaryPage() {
       {!loading && sites && (
         <div className="flex gap-6 text-sm text-muted-foreground">
           <span><strong className="text-foreground">{activeCount}</strong> active</span>
-          <span><strong className="text-foreground">{inactiveCount}</strong> inactive</span>
+          <span><strong className="text-foreground">{inactiveCount}</strong> prior</span>
           <span><strong className="text-foreground">{sites.length}</strong> total</span>
         </div>
       )}
@@ -48,7 +48,7 @@ export default function SiteSummaryPage() {
                       </span>
                     ) : (
                       <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-500/20">
-                        Inactive
+                        Prior
                       </span>
                     )}
                   </td>

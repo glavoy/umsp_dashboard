@@ -29,7 +29,7 @@ export function SiteSummaryCard({ sites, activeSiteNames, loading }: Props) {
             <CardTitle className="text-lg">Site Summary</CardTitle>
             {!loading && sites.length > 0 && (
               <span className="text-sm text-muted-foreground">
-                {activeSiteCount} active · {sites.length - activeSiteCount} inactive · {sites.length} total
+                {activeSiteCount} active · {sites.length - activeSiteCount} prior · {sites.length} total
               </span>
             )}
           </div>
@@ -71,7 +71,7 @@ export function SiteSummaryCard({ sites, activeSiteNames, loading }: Props) {
                             </span>
                           ) : (
                             <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-500/20">
-                              Inactive
+                              Prior
                             </span>
                           )}
                         </td>

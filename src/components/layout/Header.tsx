@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Building2, Dna, Menu, LogOut } from 'lucide-react';
+import { BarChart3, BookOpen, Building2, Dna, Menu, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { MobileNav } from './MobileNav';
@@ -10,9 +10,10 @@ import { createClient } from '@/lib/supabase/client';
 
 const PAGE_META: Record<string, { label: string; icon: React.ElementType }> = {
   '/dashboard/site-summary': { label: 'Site Summary', icon: Building2 },
-  '/dashboard/genomic-data': { label: 'Genomic Data', icon: Dna },
+  '/dashboard/genomic-data': { label: 'Genomic Dashboard', icon: Dna },
+  '/dashboard/methods': { label: 'Malaria Indicators', icon: BookOpen },
 };
-const DEFAULT_META = { label: 'Dashboard', icon: BarChart3 };
+const DEFAULT_META = { label: 'Epi Dashboard', icon: BarChart3 };
 
 export function Header() {
   const pathname = usePathname();

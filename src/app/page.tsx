@@ -54,18 +54,24 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Uganda sites map */}
       <section className="container mx-auto px-6 pb-16">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+          <div className="flex flex-col gap-3">
+            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+              Active and Prior MRCs
+            </h2>
             <Image
               src="/logo/screenshot.png"
-              alt="UMSP dashboard screenshot"
+              alt="Map of active and prior Malaria Reference Centers across Uganda"
               width={0}
               height={0}
-              sizes="100vw"
+              sizes="50vw"
               className="h-auto w-full rounded-2xl border border-white/15 shadow-2xl shadow-black/40"
             />
-            <p className="text-sm leading-relaxed text-white/75">
+          </div>
+          <div className="flex flex-col justify-center gap-16">
+            <p className="text-lg leading-relaxed text-white/75">
               The Uganda Malaria Surveillance Program (UMSP) was established in 2006 to collect
               high-quality malaria surveillance data at government-run health centers. These Malaria
               Reference Centers (MRCs) are Level III and IV health centers that generally see
@@ -73,14 +79,28 @@ export default function LandingPage() {
               MOH outpatient department registers are entered into an electronic database by on-site
               data officers, quality controlled, and compiled monthly by IDRC in Kampala.
             </p>
-          </div>
-
-          <div className="flex items-center justify-center lg:justify-start">
-            <Button asChild size="lg" className="bg-[#f4b63e] text-slate-900 hover:bg-[#e7a934]">
-              <Link href="/dashboard">
-                Access Dashboard <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+            <div className="flex flex-col gap-6">
+              <div className="space-y-3 text-lg leading-relaxed text-white/75">
+                <p>
+                  UMSP collects data at two levels: the <strong className="text-white">facility level</strong> (all
+                  outpatients presenting to each MRC) and the <strong className="text-white">target area level</strong> (residents
+                  within a defined target area surrounding each facility, enabling malaria incidence
+                  estimation with a population denominator).
+                </p>
+                <p>
+                  <Link href="/dashboard/methods" className="underline underline-offset-4 text-[#f4b63e] hover:text-[#e7a934] transition-colors">
+                    Learn more about facility and target area indicators →
+                  </Link>
+                </p>
+              </div>
+              <div className="flex justify-center pt-6">
+                <Button asChild size="lg" className="bg-[#f4b63e] text-slate-900 hover:bg-[#e7a934]">
+                  <Link href="/dashboard">
+                    Access Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
