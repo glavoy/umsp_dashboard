@@ -58,7 +58,7 @@ export default function LandingPage() {
       <section className="container mx-auto px-6 pb-16">
         <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
           <div className="flex flex-col gap-3">
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            <h2 className="text-center text-2xl font-bold tracking-tight md:text-3xl">
               Active and Prior MRCs
             </h2>
             <Image
