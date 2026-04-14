@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-UMSP Malaria Surveillance Dashboard — a Next.js 14 (App Router) application backed by Supabase, visualizing malaria surveillance data for ~42 health facilities across regions in Gambia. Deployed on Vercel; no local database needed (connects directly to Supabase cloud).
+UMSP Malaria Surveillance Dashboard — a Next.js 14 (App Router) application backed by Supabase, visualizing malaria surveillance data for ~42 health facilities across regions in Uganda. Deployed on Vercel; no local database needed (connects directly to Supabase cloud).
 
 ## Commands
 
