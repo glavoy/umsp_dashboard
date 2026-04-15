@@ -32,7 +32,7 @@ export default function LandingPage() {
 
       <section className="container mx-auto px-6 pb-10 pt-14 text-center md:pt-16">
         <h1 className="text-balance text-4xl font-bold leading-tight tracking-tight md:text-5xl">
-          Uganda Malaria Surveillance Programme
+          Uganda Malaria Surveillance GGG Programme
         </h1>
         <p className="mx-auto mt-4 max-w-3xl text-balance text-base text-white/80 md:text-lg">
           Enhanced health facility-based surveillance across 42 active Malaria Reference Centers,
