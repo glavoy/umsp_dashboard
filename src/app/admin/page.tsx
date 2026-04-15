@@ -59,11 +59,14 @@ export default function AdminPage() {
             <CardTitle className="text-lg">Upload Instructions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Upload CSV files to update dashboard data. Three tables are supported:</p>
+            <p>Upload CSV or TSV files to update dashboard data. Supported tables:</p>
             <ul className="list-inside list-disc space-y-1">
               <li><strong>Monthly Surveillance Data</strong>: Site, region, district, monthyear, and indicator fields</li>
               <li><strong>Health Facility Coordinates</strong>: GPS coordinates for map rendering</li>
               <li><strong>Active Sites</strong>: Sites currently included in surveillance tracking</li>
+              <li><strong>Genomic: Sites Reference</strong>: merged_sites_reference.csv — 80 sites with collection codes</li>
+              <li><strong>Genomic: Single Locus</strong>: sl_summary TSV — select MIPs or Paragon platform when uploading</li>
+              <li><strong>Genomic: Multilocus</strong>: ml_summary TSV — select MIPs or Paragon platform when uploading</li>
             </ul>
             <p><strong>Replace mode</strong> clears old data before insert. <strong>Append mode</strong> upserts existing rows.</p>
           </CardContent>

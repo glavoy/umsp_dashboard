@@ -28,72 +28,161 @@ const COLUMN_MAPPINGS: Record<string, Record<string, string>> = {
   active_sites: {
     'site': 'site',
   },
+  genomic_sites_reference: {
+    'site': 'site_id',
+    'NEWsiteID': 'full_label',
+    'Health facility': 'site_name',
+    'Region': 'region',
+    'District': 'district',
+    'Latitude': 'latitude',
+    'Longitude': 'longitude',
+    'CollectionCode': 'collection_code',
+  },
+  genomic_single_locus: {
+    'population': 'population',
+    'variant': 'variant',
+    'prev': 'prev',
+    'sample_count': 'sample_count',
+    'sample_total': 'sample_total',
+    'allele_total': 'allele_total',
+    'allele_count': 'allele_count',
+    'freq': 'freq',
+  },
+  genomic_multi_locus: {
+    'population': 'population',
+    'group_id': 'group_id',
+    'variant': 'variant',
+    'prev': 'prev',
+    'sample_count': 'sample_count',
+    'sample_total': 'sample_total',
+    'allele_total': 'allele_total',
+    'allele_count': 'allele_count',
+    'freq': 'freq',
+  },
 };
 
-function mapRow(row: Record<string, string>, table: string): Record<string, unknown> {
+const INT_COLUMNS = new Set([
+  'year', 'visits', 'malariasuspected', 'new_site_id',
+  'site_id', 'codon',
+  'sample_count', 'sample_total', 'allele_count', 'allele_total',
+]);
+const FLOAT_COLUMNS = new Set([
+  'malaria_incidence_per_1000_py', 'tpr_cases_all', 'tpr_cases_per_ca',
+  'propsuspected_per_total_visits', 'proptested', 'prop_visit_ca',
+  'latitude', 'longitude',
+  'prev', 'freq',
+]);
+
+function splitPopulation(population: string): { site_key: string; year: number } | null {
+  // "AG-2018", "Alebtong-2023", "Lira-Kato-2023" — split on the LAST "-"
+  const idx = population.lastIndexOf('-');
+  if (idx < 0) return null;
+  const site_key = population.slice(0, idx).trim();
+  const year = parseInt(population.slice(idx + 1), 10);
+  if (!Number.isFinite(year)) return null;
+  return { site_key, year };
+}
+
+function parseVariantSingleLocus(variant: string): { gene_id: string; codon: number; allele: string } | null {
+  // e.g. "PF3D7_0709000.1:76:T"
+  const parts = variant.split(':');
+  if (parts.length < 3) return null;
+  const codon = parseInt(parts[1], 10);
+  if (!Number.isFinite(codon)) return null;
+  return { gene_id: parts[0], codon, allele: parts[2] };
+}
+
+function mapRow(row: Record<string, string>, table: string, platform?: string): Record<string, unknown> {
   const mapping = COLUMN_MAPPINGS[table] ?? {};
   const mapped: Record<string, unknown> = {};
 
   for (const [csvCol, value] of Object.entries(row)) {
     const dbCol = mapping[csvCol] ?? csvCol.toLowerCase();
-    if (value === '' || value === undefined) {
+    if (value === '' || value === undefined || value === null) {
       mapped[dbCol] = null;
-    } else if (['year', 'visits', 'malariasuspected', 'new_site_id'].includes(dbCol)) {
-      mapped[dbCol] = parseInt(value, 10);
-    } else if ([
-      'malaria_incidence_per_1000_py', 'tpr_cases_all', 'tpr_cases_per_ca',
-      'propsuspected_per_total_visits', 'proptested', 'prop_visit_ca',
-      'latitude', 'longitude',
-    ].includes(dbCol)) {
-      mapped[dbCol] = parseFloat(value);
+    } else if (INT_COLUMNS.has(dbCol)) {
+      const n = parseInt(value, 10);
+      mapped[dbCol] = Number.isFinite(n) ? n : null;
+    } else if (FLOAT_COLUMNS.has(dbCol)) {
+      const n = parseFloat(value);
+      mapped[dbCol] = Number.isFinite(n) ? n : null;
     } else {
       mapped[dbCol] = value;
+    }
+  }
+
+  // Derived fields for genomic tables
+  if (table === 'genomic_single_locus' || table === 'genomic_multi_locus') {
+    const pop = String(mapped.population ?? '');
+    const split = splitPopulation(pop);
+    if (split) {
+      mapped.site_key = split.site_key;
+      mapped.year = split.year;
+    }
+    mapped.platform = platform ?? 'paragon';
+  }
+  if (table === 'genomic_single_locus') {
+    const parsed = parseVariantSingleLocus(String(mapped.variant ?? ''));
+    if (parsed) {
+      mapped.gene_id = parsed.gene_id;
+      mapped.codon = parsed.codon;
+      mapped.allele = parsed.allele;
     }
   }
 
   return mapped;
 }
 
+const CONFLICT_KEYS: Record<string, string> = {
+  umsp_monthly_data: 'site,monthyear',
+  health_facility_coordinates: 'site',
+  active_sites: 'site',
+  genomic_sites_reference: 'site_name',
+  genomic_single_locus: 'platform,population,variant',
+  genomic_multi_locus: 'platform,population,group_id,variant',
+};
+
+const ALLOWED_TABLES = Object.keys(CONFLICT_KEYS);
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = createServerSupabaseClient();
 
-    // Verify admin auth
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || user.app_metadata?.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { table, mode, rows } = await request.json();
+    const { table, mode, rows, platform } = await request.json();
 
-    if (!['umsp_monthly_data', 'health_facility_coordinates', 'active_sites'].includes(table)) {
+    if (!ALLOWED_TABLES.includes(table)) {
       return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
     }
 
-    // Map rows
+    const needsPlatform = table === 'genomic_single_locus' || table === 'genomic_multi_locus';
+    if (needsPlatform && platform !== 'mips' && platform !== 'paragon') {
+      return NextResponse.json({ error: 'Platform (mips|paragon) required' }, { status: 400 });
+    }
+
     const mappedRows = (rows as Record<string, string>[])
       .filter((row) => Object.values(row).some((v) => v !== ''))
-      .map((row) => mapRow(row, table));
+      .map((row) => mapRow(row, table, platform));
 
     if (mappedRows.length === 0) {
       return NextResponse.json({ error: 'No valid rows found' }, { status: 400 });
     }
 
-    // If replace mode, delete all existing data
     if (mode === 'replace') {
       const { error: deleteError } = await supabase.from(table).delete().gte('id', 0);
       if (deleteError) throw deleteError;
     }
 
-    // Insert in chunks of 500
     let inserted = 0;
     const chunkSize = 500;
     for (let i = 0; i < mappedRows.length; i += chunkSize) {
       const chunk = mappedRows.slice(i, i + chunkSize);
       const { error } = await supabase.from(table).upsert(chunk, {
-        onConflict: table === 'umsp_monthly_data' ? 'site,monthyear'
-          : table === 'health_facility_coordinates' ? 'site'
-          : 'site',
+        onConflict: CONFLICT_KEYS[table],
       });
       if (error) throw error;
       inserted += chunk.length;
