@@ -32,7 +32,7 @@ export default function LandingPage() {
 
       <section className="container mx-auto px-6 pb-10 pt-14 text-center md:pt-16">
         <h1 className="text-balance text-4xl font-bold leading-tight tracking-tight md:text-5xl">
-          Uganda Malaria Surveillance GGG Programme
+          Uganda Malaria Surveillance Programme
         </h1>
         <p className="mx-auto mt-4 max-w-3xl text-balance text-base text-white/80 md:text-lg">
           Enhanced health facility-based surveillance across 42 active Malaria Reference Centers,
@@ -72,7 +72,7 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col justify-center gap-16">
             <p className="text-lg leading-relaxed text-white/75">
-              The Uganda Malaria Surveillance Program (UMSP) was established in 2006 to collect
+              The Uganda Malaria Surveillance Programme (UMSP) was established in 2006 to collect
               high-quality malaria surveillance data at government-run health centers. These Malaria
               Reference Centers (MRCs) are Level III and IV health centers that generally see
               1,000–3,000 outpatients per month. At each MRC, individual-level data from standardized

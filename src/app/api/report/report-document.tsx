@@ -141,7 +141,7 @@ export function ReportDocument({ data }: { data: ReportData }) {
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text>Report Generated: {data.generatedDate} | IDRC Enhanced Malaria Surveillance Dashboard</Text>
-          <Text>Ministry of Health Uganda | Malaria Control Program</Text>
+          <Text>Ministry of Health Uganda | Malaria Control Programme</Text>
         </View>
       </Page>
     </Document>
